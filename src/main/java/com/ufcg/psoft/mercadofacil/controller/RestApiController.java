@@ -102,6 +102,7 @@ public class RestApiController {
 		currentProduto.setCodigoBarra(produto.getCodigoBarra());
 		currentProduto.mudaFabricante(produto.getFabricante());
 		currentProduto.mudaCategoria(produto.getCategoria());
+		currentProduto.setDescricao(produto.getDescricao());
 
 		produtoRepository.save(currentProduto);
 		

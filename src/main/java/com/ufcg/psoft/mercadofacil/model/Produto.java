@@ -10,16 +10,16 @@ import com.ufcg.psoft.mercadofacil.model.Produto;
 import exceptions.ObjetoInvalidoException;
 
 @Entity
-public class Produto {
+public class Produto {     
 
-	@Id
+	@Id   
 	@GeneratedValue
-	private Long id;
+	private Long id; 
 	
-	private String nome;
+	private String nome; 
 
 	private BigDecimal preco;
-
+   
 	private String codigoBarra;
 
 	private String fabricante;
