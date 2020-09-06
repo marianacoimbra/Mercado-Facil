@@ -25,6 +25,10 @@ public class Produto {
 	private String fabricante;
 
 	private String categoria;
+	
+	private String descricao;
+	
+	
 
 	public int situacao; // usa variaveis estaticas abaixo
 	/* situacoes do produto */
@@ -35,7 +39,7 @@ public class Produto {
 		this.preco = new BigDecimal(0);
 	}
 
-	public Produto(long id, String nome, String codigoBarra, String fabricante,
+	public Produto(long id, String nome, String codigoBarra, String fabricante, String descricao,
 			String nomeCategoria) {
 		super();
 		this.id = id;
@@ -45,6 +49,7 @@ public class Produto {
 		this.fabricante = fabricante;
 		this.categoria = nomeCategoria;
 		this.situacao = Produto.INDISPONIVEL;
+		this.descricao = descricao;
 	}
 
 	public long getId() {
@@ -57,6 +62,14 @@ public class Produto {
 
 	public void setNome(String nome) {
 		this.nome = nome;
+	}
+	
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
+	}
+	
+	public String getDescricao() {
+		return descricao;
 	}
 
 	public BigDecimal getPreco() {
