@@ -1,5 +1,6 @@
 package com.ufcg.psoft.mercadofacil.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.ufcg.psoft.mercadofacil.DTO.LoteDTO;
 import com.ufcg.psoft.mercadofacil.model.Lote;
 import com.ufcg.psoft.mercadofacil.model.Produto;
+import com.ufcg.psoft.mercadofacil.model.Compra;
+import com.ufcg.psoft.mercadofacil.model.Carrinho;
+import com.ufcg.psoft.mercadofacil.model.ItemCompra;
+import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
+import com.ufcg.psoft.mercadofacil.repositories.CompraRepository;
+import com.ufcg.psoft.mercadofacil.repositories.ItemCarrinhoRepository;
 import com.ufcg.psoft.mercadofacil.repositories.LoteRepository;
 import com.ufcg.psoft.mercadofacil.repositories.ProdutoRepository;
 import com.ufcg.psoft.mercadofacil.util.CustomErrorType;
@@ -32,8 +39,15 @@ public class RestApiController {
 	@Autowired
 	private ProdutoRepository produtoRepository;
 	
+	
 	@Autowired
 	private LoteRepository loteRepository;
+	
+	@Autowired
+	private CompraRepository compraRepository;
+	
+	@Autowired
+	private ItemCarrinhoRepository itemCarrinhoRepository;
 		
 	@RequestMapping(value = "/produtos", method = RequestMethod.GET)
 	public ResponseEntity<?> listarProdutos() {
@@ -70,6 +84,58 @@ public class RestApiController {
 		return new ResponseEntity<Produto>(produto, HttpStatus.CREATED);
 	}
 	
+
+	
+	
+	@RequestMapping(value = "/addProdutoCarrinho/", method = RequestMethod.POST)
+	public ResponseEntity<?> adicionaProdutoCarrinho(@PathVariable("id") long id, Produto produto, Carrinho carrinho, int quantidade ) {
+
+		Optional<Produto> produtos = produtoRepository.findById(id);
+		
+		// Produto não encontrado
+			if (produtos.isEmpty()) {
+				return new ResponseEntity<CustomErrorType>(new CustomErrorType("O produto " + produto.getNome() + " do fabricante "
+					+ produto.getFabricante() + " nao esta cadastrado!"), HttpStatus.NO_CONTENT);
+			}
+			
+			try {
+				
+				carrinho.adicionaProduto(produto, quantidade);
+			} catch (ObjetoInvalidoException e) {
+				return new ResponseEntity<CustomErrorType>(new CustomErrorType("Error: Produto" + produto.getNome() + " do fabricante "
+						+ produto.getFabricante() + " alguma coisa errada aconteceu!"), HttpStatus.NOT_ACCEPTABLE);
+			}
+			
+			return new ResponseEntity<Carrinho>(HttpStatus.ACCEPTED);
+	}
+	
+	@RequestMapping(value = "/compra/", method = RequestMethod.POST)
+	public ResponseEntity<?> compra(@RequestBody Carrinho carrinho) {
+
+		Compra compra = new Compra(carrinho.getItens());
+		
+		
+		compraRepository.save(compra);
+		return new ResponseEntity<Compra>(compra, HttpStatus.CREATED);
+	}
+	
+
+	
+	
+	@RequestMapping(value = "/listaProdutosCarrinho", method = RequestMethod.GET)
+	public ResponseEntity<?> listarProdutosCarrinho(Carrinho carrinho) {
+		List<ItemCarrinho> produtos = new ArrayList<>();
+		produtos.addAll(carrinho.getItens());
+		
+		
+		if (produtos.isEmpty()) {
+			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+		}
+		
+		return new ResponseEntity<List<ItemCarrinho>>(produtos, HttpStatus.OK);
+	}
+	
+	
 	@RequestMapping(value = "/produto/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> consultarProduto(@PathVariable("id") long id) {
 
@@ -83,6 +149,8 @@ public class RestApiController {
 		
 		return new ResponseEntity<Produto>(produto.get(), HttpStatus.OK);
 	}
+	
+	
 	
 	@RequestMapping(value = "/produto/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateProduto(@PathVariable("id") long id, @RequestBody Produto produto) {
@@ -108,6 +176,7 @@ public class RestApiController {
 		
 		return new ResponseEntity<Produto>(currentProduto, HttpStatus.OK);
 	}
+	
 
 	@RequestMapping(value = "/produto/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteProduto(@PathVariable("id") long id) {
@@ -123,6 +192,7 @@ public class RestApiController {
 
 		return new ResponseEntity<Produto>(HttpStatus.NO_CONTENT);
 	}
+	
 	
 	@RequestMapping(value = "/produto/{id}/lote", method = RequestMethod.POST)
 	public ResponseEntity<?> criarLote(@PathVariable("id") long id, @RequestBody LoteDTO loteDTO) {
@@ -153,6 +223,7 @@ public class RestApiController {
 
 		return new ResponseEntity<>(lote, HttpStatus.CREATED);
 	}
+	
 	
 	@RequestMapping(value = "/lotes", method = RequestMethod.GET)
 	public ResponseEntity<?> listarLotes() {

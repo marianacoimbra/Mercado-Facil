@@ -1,0 +1,14 @@
+!SESSION 2020-09-12 19:15:08.176 -----------------------------------------------
+eclipse.buildId=4.14.0.I20191210-0610
+java.version=11.0.8
+java.vendor=Ubuntu
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=pt_BR
+Framework arguments:  -product org.eclipse.epp.package.java.product .
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -product org.eclipse.epp.package.java.product .
+
+!ENTRY org.eclipse.core.resources 4 77 2020-09-12 19:16:15.079
+!MESSAGE Invalid project description.
+!SUBENTRY 1 unknown 0 0 2020-09-12 19:16:15.079
+!MESSAGE OK
+!SUBENTRY 1 org.eclipse.core.resources 4 77 2020-09-12 19:16:15.079
+!MESSAGE /home/mariana/Documentos/Mercado-facil/psoft-lab-1-marianacoimbra overlaps the workspace location: /home/mariana/Documentos/Mercado-facil/psoft-lab-1-marianacoimbra/Mercado-facil
