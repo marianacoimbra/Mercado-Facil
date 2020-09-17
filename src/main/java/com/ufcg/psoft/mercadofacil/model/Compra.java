@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 
@@ -18,9 +19,9 @@ public class Compra{
 	@GeneratedValue
     private long id;
 	
-	@OneToOne
+
     private Carrinho carrinho;
-	@OneToOne
+	@OneToMany
 	private ArrayList<ItemCompra> itensCompra;
 	private String data;
 	private BigDecimal valorTotal;
@@ -30,7 +31,8 @@ public class Compra{
 		
 	}
 	
-	public Compra(ArrayList<ItemCarrinho> itensCarrinho) {
+	public Compra(Carrinho carrinho) {
+	ArrayList<ItemCarrinho> itensCarrinho = carrinho.getItens();
 	itensCompra = new ArrayList<ItemCompra>();
 	for (ItemCarrinho item: itensCarrinho) {
 		ItemCompra itemCompra = new ItemCompra(item.getProduto(), item.getQuantidade());
@@ -42,13 +44,10 @@ public class Compra{
 	this.data =  dtf.format(date);
 	}
  
-//    public long getId() {
-//        return id;
-//    }
-//
-//    public void setId(long id) {
-//        this.id = id;
-//    }
+    public long getId() {
+        return id;
+    }
+ 
 
     public String getData() {
     	return this.data;
@@ -63,15 +62,21 @@ public class Compra{
    }
    
    public String gerarDescritivo() {
-	   return this.toString();
+	   String descritivo = "";
+	   
+	   for(ItemCompra item: itensCompra) {
+		   descritivo += item.toString();
+	   }
+	   
+	   return descritivo;
+	   
    }
    
    
     @Override
     public String toString() {
         return "Carrinho{" +
-                "id=" + id +
-                 " " + this.getCarrinho().toString() +
+                 this.getCarrinho().toString() +
                 "Data= " + this.getData(); 
     }
 }

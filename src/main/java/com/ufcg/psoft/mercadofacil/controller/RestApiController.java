@@ -1,6 +1,8 @@
 package com.ufcg.psoft.mercadofacil.controller;
 
+import java.awt.color.CMMException;
 import java.math.BigDecimal;
+import java.net.ResponseCache;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,6 +32,7 @@ import com.ufcg.psoft.mercadofacil.repositories.ItemCarrinhoRepository;
 import com.ufcg.psoft.mercadofacil.repositories.LoteRepository;
 import com.ufcg.psoft.mercadofacil.repositories.ProdutoRepository;
 import com.ufcg.psoft.mercadofacil.util.CustomErrorType;
+import com.ufcg.psoft.mercadofacil.DTO.CompraDTO;
 
 import exceptions.ObjetoInvalidoException;
 
@@ -46,8 +51,11 @@ public class RestApiController {
 	@Autowired
 	private CompraRepository compraRepository;
 	
+	
 	@Autowired
-	private ItemCarrinhoRepository itemCarrinhoRepository;
+	private Carrinho carrinho = new Carrinho();
+	
+
 		
 	@RequestMapping(value = "/produtos", method = RequestMethod.GET)
 	public ResponseEntity<?> listarProdutos() {
@@ -84,42 +92,40 @@ public class RestApiController {
 		return new ResponseEntity<Produto>(produto, HttpStatus.CREATED);
 	}
 	
-
 	
-	
-	@RequestMapping(value = "/addProdutoCarrinho/", method = RequestMethod.POST)
-	public ResponseEntity<?> adicionaProdutoCarrinho(@PathVariable("id") long id, Produto produto, Carrinho carrinho, int quantidade ) {
 
-		Optional<Produto> produtos = produtoRepository.findById(id);
+	@PutMapping("/adiciona")
+	public ResponseEntity<?> adicionaProduto(@RequestBody Produto produto, int quantidade) {
 		
-		// Produto não encontrado
-			if (produtos.isEmpty()) {
-				return new ResponseEntity<CustomErrorType>(new CustomErrorType("O produto " + produto.getNome() + " do fabricante "
-					+ produto.getFabricante() + " nao esta cadastrado!"), HttpStatus.NO_CONTENT);
-			}
-			
-			try {
-				
+		long id = produto.getId();
+		
+		Optional<Produto> optionalProduto = produtoRepository.findById(id);
+		
+		if (!optionalProduto.isPresent()) {
+			return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + id + " not found"),
+					HttpStatus.NOT_FOUND);
+		}
+		
+		try {
+			if (produto.getSituacao() == Produto.INDISPONIVEL)
 				carrinho.adicionaProduto(produto, quantidade);
-			} catch (ObjetoInvalidoException e) {
-				return new ResponseEntity<CustomErrorType>(new CustomErrorType("Error: Produto" + produto.getNome() + " do fabricante "
-						+ produto.getFabricante() + " alguma coisa errada aconteceu!"), HttpStatus.NOT_ACCEPTABLE);
-			}
-			
-			return new ResponseEntity<Carrinho>(HttpStatus.ACCEPTED);
+		} catch (ObjetoInvalidoException e) {
+			e.printStackTrace();
+		}
+		
+		return new ResponseEntity<List<ItemCarrinho>>(carrinho.getItens(), HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/compra/", method = RequestMethod.POST)
+	
+	@PostMapping("/compra")
 	public ResponseEntity<?> compra(@RequestBody Carrinho carrinho) {
-
-		Compra compra = new Compra(carrinho.getItens());
 		
-		
+		Compra compra = new Compra(carrinho);
+		CompraDTO compraDTO = new CompraDTO();
+		String descritivo = compraDTO.gerarDescritivo();
 		compraRepository.save(compra);
-		return new ResponseEntity<Compra>(compra, HttpStatus.CREATED);
+		return new ResponseEntity<String>(descritivo, HttpStatus.CREATED);
 	}
-	
-
 	
 	
 	@RequestMapping(value = "/listaProdutosCarrinho", method = RequestMethod.GET)
