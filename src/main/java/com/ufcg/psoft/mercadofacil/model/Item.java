@@ -2,10 +2,22 @@ package com.ufcg.psoft.mercadofacil.model;
 
 import java.math.BigDecimal;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
+
+@Entity
 public abstract class Item {
+	@OneToOne
 	private Produto produto;
 	private Integer quantidade;
 	private BigDecimal preco;
+	@Id
+	@GeneratedValue
+	private long id;
 	
 	
 	
@@ -22,6 +34,10 @@ public abstract class Item {
 	
 	public Integer getQuantidade() {
 		return this.quantidade;
+	}
+	
+	public long getId() {
+		return this.id;
 	}
 
 	public void setQuantidade(Integer quantidade) {

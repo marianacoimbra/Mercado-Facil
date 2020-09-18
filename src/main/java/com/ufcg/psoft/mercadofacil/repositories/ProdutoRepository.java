@@ -9,4 +9,6 @@ import com.ufcg.psoft.mercadofacil.model.Produto;
 public interface ProdutoRepository extends JpaRepository<Produto, Long>{
 
 	List<Produto> findByCodigoBarra(String codigoBarra);
+	
+	Produto findByNome(String nome);
 }

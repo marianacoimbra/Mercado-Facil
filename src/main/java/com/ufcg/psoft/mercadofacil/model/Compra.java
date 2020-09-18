@@ -18,15 +18,11 @@ public class Compra{
 	@Id
 	@GeneratedValue
     private long id;
-	
-
-    private Carrinho carrinho;
-	@OneToMany
 	private ArrayList<ItemCompra> itensCompra;
 	private String data;
 	private BigDecimal valorTotal;
 	
-	
+	  
 	public Compra() {
 		
 	}
@@ -57,9 +53,7 @@ public class Compra{
 	   return this.valorTotal;
    }
    
-   public Carrinho getCarrinho() {
-	   return this.carrinho;
-   }
+   
    
    public String gerarDescritivo() {
 	   String descritivo = "";
@@ -72,11 +66,10 @@ public class Compra{
 	   
    }
    
-   
     @Override
     public String toString() {
         return "Carrinho{" +
-                 this.getCarrinho().toString() +
+                 
                 "Data= " + this.getData(); 
     }
 }

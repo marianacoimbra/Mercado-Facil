@@ -32,7 +32,7 @@ public class CarrinhoDTO {
 	}
 
 	public ArrayList<ItemCarrinho> getItens() {
-		return itens;
+		return this.itens;
 	}
 
 	public void setItens(ArrayList<ItemCarrinho> itens) {
@@ -46,6 +46,5 @@ public class CarrinhoDTO {
 	public void setValorTotal(BigDecimal valorTotal) {
 		this.valorTotal = valorTotal;
 	}
-
     
 }

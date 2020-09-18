@@ -28,10 +28,6 @@ public class CompraDTO {
 	   return this.compra.getValorTotal();
    }
    
-   public Carrinho getCarrinho() {
-	   return this.compra.getCarrinho();
-   }
-   
 
 	public String gerarDescritivo() {
 		return this.compra.gerarDescritivo();

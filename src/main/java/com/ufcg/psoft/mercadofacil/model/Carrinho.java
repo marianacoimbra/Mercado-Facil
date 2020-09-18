@@ -54,6 +54,10 @@ public class Carrinho {
     public void setItens(ItemCarrinho item) {
 		this.itens.add(item);
 	}
+    
+    public void setQtdItens(int qtd) {
+    	this.qtdItens = qtd;
+    }
 
     public void adicionaProduto(Produto produto, int quantidade) throws ObjetoInvalidoException {
   
@@ -70,6 +74,10 @@ public class Carrinho {
     
     public BigDecimal getValorTotal() {
     	return this.valorTotal;
+    }
+    
+    public void esvaziarCarrinho() {
+    	this.itens.clear();
     }
     
 

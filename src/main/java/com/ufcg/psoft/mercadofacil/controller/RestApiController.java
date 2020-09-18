@@ -28,11 +28,13 @@ import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemCompra;
 import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 import com.ufcg.psoft.mercadofacil.repositories.CompraRepository;
-import com.ufcg.psoft.mercadofacil.repositories.ItemCarrinhoRepository;
+import com.ufcg.psoft.mercadofacil.repositories.ItemCompraRepository;
 import com.ufcg.psoft.mercadofacil.repositories.LoteRepository;
 import com.ufcg.psoft.mercadofacil.repositories.ProdutoRepository;
 import com.ufcg.psoft.mercadofacil.util.CustomErrorType;
+import com.ufcg.psoft.mercadofacil.DTO.CarrinhoDTO;
 import com.ufcg.psoft.mercadofacil.DTO.CompraDTO;
+import com.ufcg.psoft.mercadofacil.DTO.ItemCarrinhoDTO;
 
 import exceptions.ObjetoInvalidoException;
 
@@ -51,11 +53,12 @@ public class RestApiController {
 	@Autowired
 	private CompraRepository compraRepository;
 	
-	
+	@Autowired
+	private ItemCompraRepository itemCompraRepository;
+		
 	@Autowired
 	private Carrinho carrinho = new Carrinho();
 	
-
 		
 	@RequestMapping(value = "/produtos", method = RequestMethod.GET)
 	public ResponseEntity<?> listarProdutos() {
@@ -94,21 +97,19 @@ public class RestApiController {
 	
 	
 
-	@PutMapping("/adiciona")
-	public ResponseEntity<?> adicionaProduto(@RequestBody Produto produto, int quantidade) {
+	@PutMapping("/adicionaProdutoCarrinho")
+	public ResponseEntity<?> adicionaProdutoPorNome(@RequestBody String nome, int quantidade) {
 		
-		long id = produto.getId();
+		Produto optionalProduto = produtoRepository.findByNome(nome);
 		
-		Optional<Produto> optionalProduto = produtoRepository.findById(id);
-		
-		if (!optionalProduto.isPresent()) {
-			return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + id + " not found"),
+		if (optionalProduto.equals(null)) {
+			return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + nome + " not found"),
 					HttpStatus.NOT_FOUND);
 		}
 		
 		try {
-			if (produto.getSituacao() == Produto.INDISPONIVEL)
-				carrinho.adicionaProduto(produto, quantidade);
+			if (optionalProduto.getSituacao() == Produto.INDISPONIVEL)
+				carrinho.adicionaProduto(optionalProduto, quantidade);
 		} catch (ObjetoInvalidoException e) {
 			e.printStackTrace();
 		}
@@ -123,22 +124,54 @@ public class RestApiController {
 		Compra compra = new Compra(carrinho);
 		CompraDTO compraDTO = new CompraDTO();
 		String descritivo = compraDTO.gerarDescritivo();
+		
 		compraRepository.save(compra);
+		this.carrinho.esvaziarCarrinho();
+		this.carrinho.setQtdItens(0);
 		return new ResponseEntity<String>(descritivo, HttpStatus.CREATED);
 	}
 	
 	
-	@RequestMapping(value = "/listaProdutosCarrinho", method = RequestMethod.GET)
-	public ResponseEntity<?> listarProdutosCarrinho(Carrinho carrinho) {
-		List<ItemCarrinho> produtos = new ArrayList<>();
-		produtos.addAll(carrinho.getItens());
+	@RequestMapping(value = "/listaCarrinho", method = RequestMethod.GET)
+	public ResponseEntity<?> listarProdutosCarrinho() {
 		
-		
-		if (produtos.isEmpty()) {
+		if (this.carrinho.getItens().isEmpty()) {
 			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 		}
 		
-		return new ResponseEntity<List<ItemCarrinho>>(produtos, HttpStatus.OK);
+		ItemCarrinhoDTO itemCarrinhoDTO= new ItemCarrinhoDTO(this.carrinho);
+		
+		return new ResponseEntity<String>(itemCarrinhoDTO.getItensCarrinho(), HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/itemCarrinho/{name}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> excluirItemCarrinho(@PathVariable("name") String name) {
+
+		ArrayList<ItemCarrinho> itens = this.carrinho.getItens();
+		
+		for(ItemCarrinho item: itens) {
+			if(name.equals(item.getNomeItem())) {
+				itens.remove(item);
+				break;
+			}
+		}
+		
+		ItemCarrinhoDTO itemCarrinhoDTO= new ItemCarrinhoDTO(this.carrinho);
+		
+		return new ResponseEntity<String>(itemCarrinhoDTO.getItensCarrinho(), HttpStatus.OK);
+	
+	}
+	
+	
+	@RequestMapping(value = "/descartaCarrinho/", method = RequestMethod.DELETE)
+	public ResponseEntity<?> descartarCarrinho() {
+
+		this.carrinho.esvaziarCarrinho();
+		this.carrinho.setQtdItens(0);
+		
+		String response = "Carrinho descartado com sucesso!";
+		return new ResponseEntity<String>(response, HttpStatus.OK);
+	
 	}
 	
 	
