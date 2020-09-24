@@ -14,7 +14,7 @@ public class CompraDTO {
 	}
 
 	
-	private CompraDTO(Compra compra) {
+	public CompraDTO(Compra compra) {
 		super();
 		this.compra = compra;
 	}

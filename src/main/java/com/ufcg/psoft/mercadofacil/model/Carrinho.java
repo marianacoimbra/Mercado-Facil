@@ -19,17 +19,18 @@ public class Carrinho {
 
     private ArrayList<ItemCarrinho> itens = new ArrayList<ItemCarrinho>();
 	private int qtdItens;
-	private BigDecimal valorTotal;
+	private long contadorIds;
+	
 	
 	public Carrinho(ArrayList<ItemCarrinho> itens, int qtdItens, BigDecimal valorTotal) {
 		super();
 		this.itens = itens;
 		this.qtdItens = qtdItens;
-		this.valorTotal = valorTotal;
 	}
 
 	public Carrinho() {
 		super();
+		this.qtdItens = 0;
 	}
 
     public int getQtdItens() {
@@ -47,10 +48,6 @@ public class Carrinho {
     	return itens;
     }
     
-    public void adicionaPreco(BigDecimal preco) {
-    	this.valorTotal = valorTotal.add(preco);
-    }
-    
     public void setItens(ItemCarrinho item) {
 		this.itens.add(item);
 	}
@@ -59,23 +56,26 @@ public class Carrinho {
     	this.qtdItens = qtd;
     }
 
-    public void adicionaProduto(Produto produto, int quantidade) throws ObjetoInvalidoException {
+    public void adicionaProduto(Produto produto, int quantidade) {
   
-    	  ItemCarrinho novaAdicao = new ItemCarrinho(produto, quantidade);
+    	 ItemCarrinho novaAdicao = new ItemCarrinho(produto, quantidade);
     	 this.setItens(novaAdicao);
+    	 novaAdicao.setId(this.contadorIds += 1);
     	 this.addItens(novaAdicao.getQuantidade());
-    	 this.adicionaPreco(novaAdicao.getPreco());
+     }
+    
+    public boolean removeItem(long id) {
     	
+    	for(ItemCarrinho item: this.itens) {
+			if(id == item.getId()){
+			return this.itens.remove(item);
+			} 
+		}
+		return false;
     }
+   
     
-    public void  setValorTotal(BigDecimal valorTotal) {
-		this.valorTotal = valorTotal;
-	}
-    
-    public BigDecimal getValorTotal() {
-    	return this.valorTotal;
-    }
-    
+
     public void esvaziarCarrinho() {
     	this.itens.clear();
     }
@@ -83,12 +83,9 @@ public class Carrinho {
 
     @Override
     public String toString() {
-        return "Carrinho{" +
-                ", itens=" + this.getItens().toString() +
-                ", numeroDeItens=" + this.getQtdItens() 
-                + "valorTotal=" + this.getValorTotal();
+        return "Carrinho: " + 
+                "item: " + this.getItens() +
+               ", numeroDeItens: " + this.getQtdItens();
     }
-
-
     
 }

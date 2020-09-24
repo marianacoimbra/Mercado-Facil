@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,6 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.ufcg.psoft.mercadofacil.DTO.LoteDTO;
 import com.ufcg.psoft.mercadofacil.model.Lote;
 import com.ufcg.psoft.mercadofacil.model.Produto;
+import com.ufcg.psoft.mercadofacil.model.TipoPagamento;
 import com.ufcg.psoft.mercadofacil.model.Compra;
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemCompra;
@@ -52,10 +54,7 @@ public class RestApiController {
 	
 	@Autowired
 	private CompraRepository compraRepository;
-	
-	@Autowired
-	private ItemCompraRepository itemCompraRepository;
-		
+
 	@Autowired
 	private Carrinho carrinho = new Carrinho();
 	
@@ -95,21 +94,49 @@ public class RestApiController {
 		return new ResponseEntity<Produto>(produto, HttpStatus.CREATED);
 	}
 	
+//	//Adiciona Produto no Carrinho por nome
+//
+//	@PutMapping("/adicionaProdutoCarrinho")
+//	public ResponseEntity<?> adicionaProdutoPorNome(@RequestBody String nome, int quantidade, TipoPagamento tipoPagamento ) {
+//		
+//		Produto optionalProduto = produtoRepository.findByNome(nome);
+//		
+//		
+//		if (optionalProduto.equals(null)) {
+//			return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + nome + " not found"),
+//					HttpStatus.NOT_FOUND);
+//		}
+//		
+//		try {
+//			if (optionalProduto.getSituacao() == Produto.INDISPONIVEL)
+//				carrinho.adicionaProduto(optionalProduto, quantidade);
+//		} catch (ObjetoInvalidoException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		return new ResponseEntity<List<ItemCarrinho>>(carrinho.getItens(), HttpStatus.OK);
+//	}
+//	
+//	
 	
+	//Adiciona Produto no Carrinho por ID
 
 	@PutMapping("/adicionaProdutoCarrinho")
-	public ResponseEntity<?> adicionaProdutoPorNome(@RequestBody String nome, int quantidade) {
+	public ResponseEntity<?> adicionaProduto(@RequestBody long id, int quantidade) {
 		
-		Produto optionalProduto = produtoRepository.findByNome(nome);
+		Optional<Produto> optionalProduto = produtoRepository.findById(id);
 		
-		if (optionalProduto.equals(null)) {
-			return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + nome + " not found"),
+		
+		if (!optionalProduto.isPresent()) {
+			return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + id + " not found"),
 					HttpStatus.NOT_FOUND);
 		}
 		
+		Produto produto = optionalProduto.get();
+		
 		try {
-			if (optionalProduto.getSituacao() == Produto.INDISPONIVEL)
-				carrinho.adicionaProduto(optionalProduto, quantidade);
+			if (produto.getSituacao() == Produto.DISPONIVEL)
+				carrinho.adicionaProduto(produto, quantidade);
 		} catch (ObjetoInvalidoException e) {
 			e.printStackTrace();
 		}
@@ -118,10 +145,12 @@ public class RestApiController {
 	}
 	
 	
+	//Faz uma compra
+	
 	@PostMapping("/compra")
-	public ResponseEntity<?> compra(@RequestBody Carrinho carrinho) {
+	public ResponseEntity<?> compra(@RequestBody Carrinho carrinho, TipoPagamento tipoPagamento ) {
 		
-		Compra compra = new Compra(carrinho);
+		Compra compra = new Compra(carrinho, tipoPagamento);
 		CompraDTO compraDTO = new CompraDTO();
 		String descritivo = compraDTO.gerarDescritivo();
 		
@@ -132,35 +161,77 @@ public class RestApiController {
 	}
 	
 	
+	//Lista as compras
+	
+	@GetMapping("/compra")
+	public ResponseEntity<?> listarCompras() {
+		
+		List<Compra> compras = compraRepository.findAll();
+
+		if (compras.isEmpty()) {
+			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+		}
+		
+		return new ResponseEntity<List<Compra>>(compras, HttpStatus.OK);
+	}
+
+	
+	//Compra pelo ID
+	
+	@RequestMapping(value = "/compra/{id}", method = RequestMethod.GET)
+	public ResponseEntity<?> getCompra(@PathVariable("id") long id) {
+
+		Optional<Compra> optionalCompra = compraRepository.findById(id);
+		
+		if (!optionalCompra.isPresent()) {
+			return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + id + " not found"),
+					HttpStatus.NOT_FOUND);
+		} 
+		
+		Compra compra = optionalCompra.get();
+		
+		CompraDTO compraDTO = new CompraDTO(compra);
+		
+		String response = compraDTO.gerarDescritivo();
+		
+		return new ResponseEntity<String>(response, HttpStatus.OK);
+	}
+	
+	
+	//Lista o carrinho 
+	
 	@RequestMapping(value = "/listaCarrinho", method = RequestMethod.GET)
 	public ResponseEntity<?> listarProdutosCarrinho() {
 		
 		if (this.carrinho.getItens().isEmpty()) {
 			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 		}
+	
 		
-		ItemCarrinhoDTO itemCarrinhoDTO= new ItemCarrinhoDTO(this.carrinho);
-		
-		return new ResponseEntity<String>(itemCarrinhoDTO.getItensCarrinho(), HttpStatus.OK);
+		return new ResponseEntity<ArrayList<ItemCarrinho>>(this.carrinho.getItens(), HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/itemCarrinho/{name}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> excluirItemCarrinho(@PathVariable("name") String name) {
-
-		ArrayList<ItemCarrinho> itens = this.carrinho.getItens();
+	
+	//Exclui Itens do carrinho
+	
+	@RequestMapping(value = "/itemCarrinho/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> excluirItemCarrinho(@RequestBody long id) {
 		
-		for(ItemCarrinho item: itens) {
-			if(name.equals(item.getNomeItem())) {
-				itens.remove(item);
-				break;
-			}
-		}
+		boolean resp = this.carrinho.removeItem(id);
+		 
+		 if(resp == false) {
+			 return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + id + " not found"),
+						HttpStatus.NOT_FOUND);
+		 }
 		
-		ItemCarrinhoDTO itemCarrinhoDTO= new ItemCarrinhoDTO(this.carrinho);
+		ItemCarrinhoDTO itemCarrinhoDTO = new ItemCarrinhoDTO(this.carrinho);
 		
 		return new ResponseEntity<String>(itemCarrinhoDTO.getItensCarrinho(), HttpStatus.OK);
 	
 	}
+	
+	
+	//Descarta o Carrinho
 	
 	
 	@RequestMapping(value = "/descartaCarrinho/", method = RequestMethod.DELETE)
@@ -173,6 +244,8 @@ public class RestApiController {
 		return new ResponseEntity<String>(response, HttpStatus.OK);
 	
 	}
+	
+	
 	
 	
 	@RequestMapping(value = "/produto/{id}", method = RequestMethod.GET)
