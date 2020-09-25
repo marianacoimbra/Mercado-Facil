@@ -2,6 +2,7 @@ package com.ufcg.psoft.mercadofacil.DTO;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;;
@@ -14,7 +15,7 @@ public class ItemCarrinhoDTO {
 	public ItemCarrinhoDTO() {
 		super();
 	}
-	
+
 	
 	public ItemCarrinhoDTO(Carrinho carrinho) {
 		this.carrinho = carrinho;
@@ -34,7 +35,7 @@ public class ItemCarrinhoDTO {
 	}
 	
 	public String getItensCarrinho() {
-		ArrayList<ItemCarrinho> itensCarrinho = carrinho.getItens();
+		List<ItemCarrinho> itensCarrinho = carrinho.getItens();
 		
 		String itensCarrinhoString = "";
 		

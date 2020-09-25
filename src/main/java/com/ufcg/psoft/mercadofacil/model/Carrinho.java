@@ -2,36 +2,34 @@ package com.ufcg.psoft.mercadofacil.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
 
 import org.springframework.stereotype.Component;
-
-import exceptions.ObjetoInvalidoException;
 
 
 @Component
 public class Carrinho {
 
-    private ArrayList<ItemCarrinho> itens = new ArrayList<ItemCarrinho>();
+    private List<ItemCarrinho> itens;
 	private int qtdItens;
 	private long contadorIds;
 	
 	
 	public Carrinho(ArrayList<ItemCarrinho> itens, int qtdItens, BigDecimal valorTotal) {
 		super();
-		this.itens = itens;
+		this.itens = new ArrayList<ItemCarrinho>();
 		this.qtdItens = qtdItens;
+		
 	}
 
 	public Carrinho() {
 		super();
 		this.qtdItens = 0;
+		this.itens = new ArrayList<ItemCarrinho>();
 	}
+	
 
     public int getQtdItens() {
         return this.qtdItens;
@@ -44,7 +42,7 @@ public class Carrinho {
     	this.qtdItens += qtd;
     }
     
-    public ArrayList<ItemCarrinho> getItens() {
+    public List<ItemCarrinho> getItens() {
     	return itens;
     }
     

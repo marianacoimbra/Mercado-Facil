@@ -26,19 +26,29 @@ public abstract class Item {
 	 this.quantidade = quantidade;
 	 
 	 preco = produto.getPreco().multiply(BigDecimal.valueOf(quantidade)); 
-	 for(int i = 0; i <= quantidade; i++ ) {
-		 this.preco.add(produto.getPreco());
-	 }
-
+	 
+//	 
+//	 for(int i = 0; i <= quantidade; i++ ) {
+//		 this.preco.add(produto.getPreco());
+//	 }
 	}
 	
 	public void setProduto(Produto produto) {
 		this.produto = produto;
 	}
 	
+	public Produto getProduto() {
+		return this.produto;
+	}
+	
 	public Integer getQuantidade() {
 		return this.quantidade;
 	}
+	
+	public void setQuantidade(int quantidade) {
+		this.quantidade = quantidade;
+	}
+	
 	
 	public long getId() {
 		return this.id;
@@ -48,13 +58,6 @@ public abstract class Item {
 		this.id = id;
 	}
 
-	public void setQuantidade(int quantidade) {
-		this.quantidade = quantidade;
-	}
-	
-	public Produto getProduto() {
-		return this.produto;
-	}
 	
 	public String getNomeItem() {
 		return this.produto.getNome(); 

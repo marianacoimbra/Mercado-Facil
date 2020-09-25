@@ -48,7 +48,6 @@ public class RestApiController {
 	@Autowired
 	private ProdutoRepository produtoRepository;
 	
-	
 	@Autowired
 	private LoteRepository loteRepository;
 	
@@ -94,30 +93,6 @@ public class RestApiController {
 		return new ResponseEntity<Produto>(produto, HttpStatus.CREATED);
 	}
 	
-//	//Adiciona Produto no Carrinho por nome
-//
-//	@PutMapping("/adicionaProdutoCarrinho")
-//	public ResponseEntity<?> adicionaProdutoPorNome(@RequestBody String nome, int quantidade, TipoPagamento tipoPagamento ) {
-//		
-//		Produto optionalProduto = produtoRepository.findByNome(nome);
-//		
-//		
-//		if (optionalProduto.equals(null)) {
-//			return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + nome + " not found"),
-//					HttpStatus.NOT_FOUND);
-//		}
-//		
-//		try {
-//			if (optionalProduto.getSituacao() == Produto.INDISPONIVEL)
-//				carrinho.adicionaProduto(optionalProduto, quantidade);
-//		} catch (ObjetoInvalidoException e) {
-//			e.printStackTrace();
-//		}
-//		
-//		return new ResponseEntity<List<ItemCarrinho>>(carrinho.getItens(), HttpStatus.OK);
-//	}
-//	
-//	
 	
 	//Adiciona Produto no Carrinho por ID
 
@@ -140,7 +115,6 @@ public class RestApiController {
 		} catch (ObjetoInvalidoException e) {
 			e.printStackTrace();
 		}
-		
 		return new ResponseEntity<List<ItemCarrinho>>(carrinho.getItens(), HttpStatus.OK);
 	}
 	
@@ -151,7 +125,7 @@ public class RestApiController {
 	public ResponseEntity<?> compra(@RequestBody Carrinho carrinho, TipoPagamento tipoPagamento ) {
 		
 		Compra compra = new Compra(carrinho, tipoPagamento);
-		CompraDTO compraDTO = new CompraDTO();
+		CompraDTO compraDTO = new CompraDTO(compra);
 		String descritivo = compraDTO.gerarDescritivo();
 		
 		compraRepository.save(compra);
@@ -208,7 +182,7 @@ public class RestApiController {
 		}
 	
 		
-		return new ResponseEntity<ArrayList<ItemCarrinho>>(this.carrinho.getItens(), HttpStatus.OK);
+		return new ResponseEntity<List<ItemCarrinho>>(this.carrinho.getItens(), HttpStatus.OK);
 	}
 	
 	

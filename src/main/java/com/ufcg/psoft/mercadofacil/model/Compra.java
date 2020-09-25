@@ -2,7 +2,7 @@ package com.ufcg.psoft.mercadofacil.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-
+import java.util.List;
 import java.time.format.DateTimeFormatter;  
 import java.time.LocalDateTime;    
 import javax.persistence.Entity;
@@ -10,6 +10,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 
 @Entity
@@ -18,6 +19,7 @@ public class Compra{
 	@Id
 	@GeneratedValue
     private long id;
+	
 	private ArrayList<ItemCompra> itensCompra;
 	private String data;
 	private BigDecimal valorTotal;
@@ -29,13 +31,18 @@ public class Compra{
 	}
 	
 	public Compra(Carrinho carrinho, TipoPagamento tipoPagamento) {
-	ArrayList<ItemCarrinho> itensCarrinho = carrinho.getItens();
+	
+	List<ItemCarrinho> itensCarrinho = carrinho.getItens();
+		
 	itensCompra = new ArrayList<ItemCompra>();
+	
 	for (ItemCarrinho item: itensCarrinho) {
 		ItemCompra itemCompra = new ItemCompra(item.getProduto(), item.getQuantidade());
 		this.itensCompra.add(itemCompra);
 	}
-	this.valorTotal = carrinho.getValorTotal();
+	
+	//this.valorTotal = carrinho.getValorTotal();
+		
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
 	LocalDateTime date = LocalDateTime.now(); 
 	this.data =  dtf.format(date);
@@ -45,7 +52,6 @@ public class Compra{
     public long getId() {
         return id;
     }
- 
 
     public String getData() {
     	return this.data;
