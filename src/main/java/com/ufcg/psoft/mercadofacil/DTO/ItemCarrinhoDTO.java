@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
-import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;;
+import com.ufcg.psoft.mercadofacil.model.Item;
 
 public class ItemCarrinhoDTO {
-	private ItemCarrinho itemCarrinho;
+	private Item itemCarrinho;
 	private Carrinho carrinho;
 
 
@@ -27,19 +27,19 @@ public class ItemCarrinhoDTO {
 	}
 	
 	
-	public String getItemCarrinho() {
+	public Integer getItemCarrinho() {
 		
-		String itemCarrinhoString = this.itemCarrinho.getNomeItem() + " " + this.itemCarrinho.getQuantidade();
+		Integer itemCarrinhoString =  this.itemCarrinho.getQuantidade();
 		
 		return itemCarrinhoString;
 	}
 	
 	public String getItensCarrinho() {
-		List<ItemCarrinho> itensCarrinho = carrinho.getItens();
+		List<Item> itensCarrinho = carrinho.getItens();
 		
 		String itensCarrinhoString = "";
 		
-		for(ItemCarrinho item: itensCarrinho) {
+		for(Item item: itensCarrinho) {
 			itensCarrinhoString += item.toString();
 		}
 		

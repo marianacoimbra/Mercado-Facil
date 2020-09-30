@@ -26,11 +26,9 @@ import com.ufcg.psoft.mercadofacil.model.Lote;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.model.TipoPagamento;
 import com.ufcg.psoft.mercadofacil.model.Compra;
+import com.ufcg.psoft.mercadofacil.model.Item;
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
-import com.ufcg.psoft.mercadofacil.model.ItemCompra;
-import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
 import com.ufcg.psoft.mercadofacil.repositories.CompraRepository;
-import com.ufcg.psoft.mercadofacil.repositories.ItemCompraRepository;
 import com.ufcg.psoft.mercadofacil.repositories.LoteRepository;
 import com.ufcg.psoft.mercadofacil.repositories.ProdutoRepository;
 import com.ufcg.psoft.mercadofacil.util.CustomErrorType;
@@ -58,6 +56,148 @@ public class RestApiController {
 	private Carrinho carrinho = new Carrinho();
 	
 		
+	
+	/*
+	 * CARRINHO
+	 */
+	
+	//Adiciona Produto no Carrinho por ID
+
+	@PutMapping("/carrinho")
+	public ResponseEntity<?> adicionaProduto(@RequestBody long id, int quantidade) {
+		
+		Optional<Produto> optionalProduto = produtoRepository.findById(id);
+		
+		
+		if (!optionalProduto.isPresent()) {
+			return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + id + " not found"),
+					HttpStatus.NOT_FOUND);
+		}
+		
+		Produto produto = optionalProduto.get();
+		
+		try {
+			if (produto.getSituacao() == Produto.DISPONIVEL)
+				carrinho.adicionaProduto(produto, quantidade);
+		} catch (ObjetoInvalidoException e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<List<Item>>(carrinho.getItens(), HttpStatus.OK);
+	}
+	
+	//Lista o carrinho 
+	
+		@RequestMapping(value = "/carrinho", method = RequestMethod.GET)
+		public ResponseEntity<?> listarProdutosCarrinho() {
+			
+			if (this.carrinho.getItens().isEmpty()) {
+				return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+			}
+		
+			
+			return new ResponseEntity<List<Item>>(this.carrinho.getItens(), HttpStatus.OK);
+		}
+		
+		
+		//Exclui Itens do carrinho
+		
+		@RequestMapping(value = "/carrinho/{id}", method = RequestMethod.DELETE)
+		public ResponseEntity<?> excluirItemCarrinho(@RequestBody long id) {
+			
+			boolean resp = this.carrinho.removeItem(id);
+			 
+			 if(resp == false) {
+				 return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + id + " not found"),
+							HttpStatus.NOT_FOUND);
+			 }
+			
+			ItemCarrinhoDTO itemCarrinhoDTO = new ItemCarrinhoDTO(this.carrinho);
+			
+			return new ResponseEntity<String>(itemCarrinhoDTO.getItensCarrinho(), HttpStatus.OK);
+		
+		}
+		
+		
+		//Descarta o Carrinho
+		
+		
+		@RequestMapping(value = "/carrinho/", method = RequestMethod.DELETE)
+		public ResponseEntity<?> descartarCarrinho() {
+
+			this.carrinho.esvaziarCarrinho();
+			this.carrinho.setQtdItens(0);
+			
+			String response = "Carrinho descartado com sucesso!";
+			return new ResponseEntity<String>(response, HttpStatus.OK);
+		
+		}
+		
+
+	
+	
+
+	/*
+	 * COMPRA
+	 */
+	
+	
+	//Faz uma compra
+	
+	@PostMapping("/compra")
+	public ResponseEntity<?> compra(@RequestBody List<Item> itens, TipoPagamento tipoPagamento, String data ) {
+		
+		Compra compra = new Compra(itens, tipoPagamento, data);
+		
+		compraRepository.save(compra);
+		this.carrinho.esvaziarCarrinho();
+		this.carrinho.setQtdItens(0);
+		return new ResponseEntity<String>(compra.gerarDescritivo(), HttpStatus.CREATED);
+	}
+	
+	
+	//Lista as compras
+	
+	@GetMapping("/compra")
+	public ResponseEntity<?> listarCompras() {
+		
+		List<Compra> compras = compraRepository.findAll();
+
+		if (compras.isEmpty()) {
+			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+		}
+		
+		return new ResponseEntity<List<Compra>>(compras, HttpStatus.OK);
+	}
+
+	
+	//Busca Compra pelo ID
+	
+	@RequestMapping(value = "/compra/{id}", method = RequestMethod.GET)
+	public ResponseEntity<?> getCompra(@PathVariable("id") long id) {
+
+		Optional<Compra> optionalCompra = compraRepository.findById(id);
+		
+		if (!optionalCompra.isPresent()) {
+			return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + id + " not found"),
+					HttpStatus.NOT_FOUND);
+		} 
+		
+		Compra compra = optionalCompra.get();
+		
+		CompraDTO compraDTO = new CompraDTO(compra);
+		
+		String response = compraDTO.gerarDescritivo();
+		
+		return new ResponseEntity<String>(response, HttpStatus.OK);
+	}
+	
+	
+		
+	/*
+	 * PRODUTO
+	 */
+	
+	
 	@RequestMapping(value = "/produtos", method = RequestMethod.GET)
 	public ResponseEntity<?> listarProdutos() {
 		List<Produto> produtos = new ArrayList<>();
@@ -70,6 +210,7 @@ public class RestApiController {
 		
 		return new ResponseEntity<List<Produto>>(produtos, HttpStatus.OK);
 	}
+
 	
 	@RequestMapping(value = "/produto/", method = RequestMethod.POST)
 	public ResponseEntity<?> criarProduto(@RequestBody Produto produto, UriComponentsBuilder ucBuilder) {
@@ -94,133 +235,6 @@ public class RestApiController {
 	}
 	
 	
-	//Adiciona Produto no Carrinho por ID
-
-	@PutMapping("/adicionaProdutoCarrinho")
-	public ResponseEntity<?> adicionaProduto(@RequestBody long id, int quantidade) {
-		
-		Optional<Produto> optionalProduto = produtoRepository.findById(id);
-		
-		
-		if (!optionalProduto.isPresent()) {
-			return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + id + " not found"),
-					HttpStatus.NOT_FOUND);
-		}
-		
-		Produto produto = optionalProduto.get();
-		
-		try {
-			if (produto.getSituacao() == Produto.DISPONIVEL)
-				carrinho.adicionaProduto(produto, quantidade);
-		} catch (ObjetoInvalidoException e) {
-			e.printStackTrace();
-		}
-		return new ResponseEntity<List<ItemCarrinho>>(carrinho.getItens(), HttpStatus.OK);
-	}
-	
-	
-	//Faz uma compra
-	
-	@PostMapping("/compra")
-	public ResponseEntity<?> compra(@RequestBody Carrinho carrinho, TipoPagamento tipoPagamento ) {
-		
-		Compra compra = new Compra(carrinho, tipoPagamento);
-		CompraDTO compraDTO = new CompraDTO(compra);
-		String descritivo = compraDTO.gerarDescritivo();
-		
-		compraRepository.save(compra);
-		this.carrinho.esvaziarCarrinho();
-		this.carrinho.setQtdItens(0);
-		return new ResponseEntity<String>(descritivo, HttpStatus.CREATED);
-	}
-	
-	
-	//Lista as compras
-	
-	@GetMapping("/compra")
-	public ResponseEntity<?> listarCompras() {
-		
-		List<Compra> compras = compraRepository.findAll();
-
-		if (compras.isEmpty()) {
-			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
-		}
-		
-		return new ResponseEntity<List<Compra>>(compras, HttpStatus.OK);
-	}
-
-	
-	//Compra pelo ID
-	
-	@RequestMapping(value = "/compra/{id}", method = RequestMethod.GET)
-	public ResponseEntity<?> getCompra(@PathVariable("id") long id) {
-
-		Optional<Compra> optionalCompra = compraRepository.findById(id);
-		
-		if (!optionalCompra.isPresent()) {
-			return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + id + " not found"),
-					HttpStatus.NOT_FOUND);
-		} 
-		
-		Compra compra = optionalCompra.get();
-		
-		CompraDTO compraDTO = new CompraDTO(compra);
-		
-		String response = compraDTO.gerarDescritivo();
-		
-		return new ResponseEntity<String>(response, HttpStatus.OK);
-	}
-	
-	
-	//Lista o carrinho 
-	
-	@RequestMapping(value = "/listaCarrinho", method = RequestMethod.GET)
-	public ResponseEntity<?> listarProdutosCarrinho() {
-		
-		if (this.carrinho.getItens().isEmpty()) {
-			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
-		}
-	
-		
-		return new ResponseEntity<List<ItemCarrinho>>(this.carrinho.getItens(), HttpStatus.OK);
-	}
-	
-	
-	//Exclui Itens do carrinho
-	
-	@RequestMapping(value = "/itemCarrinho/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> excluirItemCarrinho(@RequestBody long id) {
-		
-		boolean resp = this.carrinho.removeItem(id);
-		 
-		 if(resp == false) {
-			 return new ResponseEntity<CustomErrorType>(new CustomErrorType("Produto with id " + id + " not found"),
-						HttpStatus.NOT_FOUND);
-		 }
-		
-		ItemCarrinhoDTO itemCarrinhoDTO = new ItemCarrinhoDTO(this.carrinho);
-		
-		return new ResponseEntity<String>(itemCarrinhoDTO.getItensCarrinho(), HttpStatus.OK);
-	
-	}
-	
-	
-	//Descarta o Carrinho
-	
-	
-	@RequestMapping(value = "/descartaCarrinho/", method = RequestMethod.DELETE)
-	public ResponseEntity<?> descartarCarrinho() {
-
-		this.carrinho.esvaziarCarrinho();
-		this.carrinho.setQtdItens(0);
-		
-		String response = "Carrinho descartado com sucesso!";
-		return new ResponseEntity<String>(response, HttpStatus.OK);
-	
-	}
-	
-	
-	
 	
 	@RequestMapping(value = "/produto/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> consultarProduto(@PathVariable("id") long id) {
@@ -235,6 +249,7 @@ public class RestApiController {
 		
 		return new ResponseEntity<Produto>(produto.get(), HttpStatus.OK);
 	}
+	
 	
 	
 	
@@ -264,6 +279,7 @@ public class RestApiController {
 	}
 	
 
+	
 	@RequestMapping(value = "/produto/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteProduto(@PathVariable("id") long id) {
 
@@ -279,6 +295,24 @@ public class RestApiController {
 		return new ResponseEntity<Produto>(HttpStatus.NO_CONTENT);
 	}
 	
+	
+	
+	/*
+	 * Lotes
+	 */
+	
+	@RequestMapping(value = "/lotes", method = RequestMethod.GET)
+	public ResponseEntity<?> listarLotes() {
+		
+		List<Lote> lotes = loteRepository.findAll();
+
+		if (lotes.isEmpty()) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+			// Outro código de erro pode ser retornado HttpStatus.NOT_FOUND
+		}
+		
+		return new ResponseEntity<List<Lote>>(lotes, HttpStatus.OK);
+	}
 	
 	@RequestMapping(value = "/produto/{id}/lote", method = RequestMethod.POST)
 	public ResponseEntity<?> criarLote(@PathVariable("id") long id, @RequestBody LoteDTO loteDTO) {
@@ -308,20 +342,6 @@ public class RestApiController {
 		}
 
 		return new ResponseEntity<>(lote, HttpStatus.CREATED);
-	}
-	
-	
-	@RequestMapping(value = "/lotes", method = RequestMethod.GET)
-	public ResponseEntity<?> listarLotes() {
-		
-		List<Lote> lotes = loteRepository.findAll();
-
-		if (lotes.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
-			// Outro código de erro pode ser retornado HttpStatus.NOT_FOUND
-		}
-		
-		return new ResponseEntity<List<Lote>>(lotes, HttpStatus.OK);
 	}
 
 }

@@ -3,20 +3,20 @@ package com.ufcg.psoft.mercadofacil.DTO;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-import com.ufcg.psoft.mercadofacil.model.ItemCarrinho;
+import com.ufcg.psoft.mercadofacil.model.Item;
 
 public class CarrinhoDTO {
 
     private int qtdItens;
     
-    private ArrayList<ItemCarrinho> itens;
+    private ArrayList<Item> itens;
     
     private BigDecimal valorTotal;
 
     public CarrinhoDTO() {
     }
 
-    public CarrinhoDTO(int qtdItens, BigDecimal valorTotal, ArrayList<ItemCarrinho> itens) {
+    public CarrinhoDTO(int qtdItens, BigDecimal valorTotal, ArrayList<Item> itens) {
         super();
         this.qtdItens = qtdItens;
         this.valorTotal = valorTotal;
@@ -31,11 +31,11 @@ public class CarrinhoDTO {
 		this.qtdItens = qtdItens;
 	}
 
-	public ArrayList<ItemCarrinho> getItens() {
+	public ArrayList<Item> getItens() {
 		return this.itens;
 	}
 
-	public void setItens(ArrayList<ItemCarrinho> itens) {
+	public void setItens(ArrayList<Item> itens) {
 		this.itens = itens;
 	}
 

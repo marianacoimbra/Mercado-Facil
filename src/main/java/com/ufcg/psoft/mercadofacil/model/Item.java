@@ -10,14 +10,15 @@ import javax.persistence.OneToOne;
 
 
 @Entity
-public abstract class Item {
+public class Item {
+	@Id
+	@GeneratedValue
+	private Long id;
+	private BigDecimal preco;
 	@OneToOne
 	private Produto produto;
 	private Integer quantidade;
-	private BigDecimal preco;
-	@Id
-	@GeneratedValue
-	private long id;
+	
 	
 	
 	
@@ -37,6 +38,16 @@ public abstract class Item {
 		this.produto = produto;
 	}
 	
+	
+	public long getId() {
+		return this.id;
+	}
+	
+	
+	public BigDecimal getPreco() {
+		return this.preco;
+	}
+	
 	public Produto getProduto() {
 		return this.produto;
 	}
@@ -49,23 +60,12 @@ public abstract class Item {
 		this.quantidade = quantidade;
 	}
 	
-	
-	public long getId() {
-		return this.id;
-	}
+
 	
 	public void setId(long id) {
 		this.id = id;
 	}
 
-	
-	public String getNomeItem() {
-		return this.produto.getNome(); 
-	}
-	
-	public BigDecimal getPreco() {
-		return this.preco;
-	}
 	
 	public void setPreco(BigDecimal preco) {
 		this.preco = preco;
@@ -74,7 +74,7 @@ public abstract class Item {
 	  @Override
 	    public String toString() {
 	        return "Item {" +
-	        		"Nome=" + this.getNomeItem() +
+	        		"Nome=" + this.getProduto().getNome()+
 	                ", numeroDeItens=" + this.getQuantidade() 
 	                + "valorTotal=" + this.getPreco();
 	    }	  

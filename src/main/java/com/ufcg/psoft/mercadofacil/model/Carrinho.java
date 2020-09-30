@@ -12,14 +12,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class Carrinho {
 
-    private List<ItemCarrinho> itens;
+    private List<Item> itens;
 	private int qtdItens;
 	private long contadorIds;
 	
 	
-	public Carrinho(ArrayList<ItemCarrinho> itens, int qtdItens, BigDecimal valorTotal) {
+	public Carrinho(ArrayList<Item> itens, int qtdItens, BigDecimal valorTotal) {
 		super();
-		this.itens = new ArrayList<ItemCarrinho>();
+		this.itens = new ArrayList<Item>();
 		this.qtdItens = qtdItens;
 		
 	}
@@ -27,7 +27,7 @@ public class Carrinho {
 	public Carrinho() {
 		super();
 		this.qtdItens = 0;
-		this.itens = new ArrayList<ItemCarrinho>();
+		this.itens = new ArrayList<Item>();
 	}
 	
 
@@ -42,11 +42,11 @@ public class Carrinho {
     	this.qtdItens += qtd;
     }
     
-    public List<ItemCarrinho> getItens() {
+    public List<Item> getItens() {
     	return itens;
     }
     
-    public void setItens(ItemCarrinho item) {
+    public void setItens(Item item) {
 		this.itens.add(item);
 	}
     
@@ -56,15 +56,15 @@ public class Carrinho {
 
     public void adicionaProduto(Produto produto, int quantidade) {
   
-    	 ItemCarrinho novaAdicao = new ItemCarrinho(produto, quantidade);
+    	 Item novaAdicao = new Item(produto, quantidade);
     	 this.setItens(novaAdicao);
     	 novaAdicao.setId(this.contadorIds += 1);
     	 this.addItens(novaAdicao.getQuantidade());
      }
     
-    public boolean removeItem(long id) {
+    public boolean removeItem(Long id) {
     	
-    	for(ItemCarrinho item: this.itens) {
+    	for(Item item: this.itens) {
 			if(id == item.getId()){
 			return this.itens.remove(item);
 			} 
