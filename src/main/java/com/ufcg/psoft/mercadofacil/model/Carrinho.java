@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-
+import javax.persistence.OneToMany;
 
 import org.springframework.stereotype.Component;
 
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class Carrinho {
 
+	@OneToMany
     private List<Item> itens;
 	private int qtdItens;
 	private long contadorIds;

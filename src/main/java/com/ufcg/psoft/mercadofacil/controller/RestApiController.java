@@ -31,6 +31,7 @@ import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.repositories.CompraRepository;
 import com.ufcg.psoft.mercadofacil.repositories.LoteRepository;
 import com.ufcg.psoft.mercadofacil.repositories.ProdutoRepository;
+import com.ufcg.psoft.mercadofacil.repositories.ItemRepository;
 import com.ufcg.psoft.mercadofacil.util.CustomErrorType;
 import com.ufcg.psoft.mercadofacil.DTO.CarrinhoDTO;
 import com.ufcg.psoft.mercadofacil.DTO.CompraDTO;
@@ -51,11 +52,14 @@ public class RestApiController {
 	
 	@Autowired
 	private CompraRepository compraRepository;
+	
+	@Autowired
+	private ItemRepository ItemRepository;
 
 	@Autowired
 	private Carrinho carrinho = new Carrinho();
 	
-		
+	
 	
 	/*
 	 * CARRINHO
@@ -131,9 +135,6 @@ public class RestApiController {
 			return new ResponseEntity<String>(response, HttpStatus.OK);
 		
 		}
-		
-
-	
 	
 
 	/*
