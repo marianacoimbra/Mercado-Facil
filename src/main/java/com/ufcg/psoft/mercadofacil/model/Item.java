@@ -5,8 +5,8 @@ import java.math.BigDecimal;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
+
 
 @Entity
 public class Item {
@@ -14,12 +14,11 @@ public class Item {
 	@GeneratedValue
 	private Long id;
 	private BigDecimal preco;
-	@OneToOne
+	@ManyToOne
 	private Produto produto;
 	private Integer quantidade;
 
 	public Item() {
-
 	}
 
 	public Item(Produto produto, int quantidade) {
