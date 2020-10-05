@@ -19,7 +19,6 @@ public class Usuario {
 	private BigDecimal desconto;
 
 	public Usuario() {
-
 	}
 
 	public Usuario(String nome, Perfil perfil, Long cpf) {
@@ -29,11 +28,11 @@ public class Usuario {
 	}
 
 	public BigDecimal setDesconto() {
-		if (this.perfil.equals("NORMAL")) {
+		if (this.perfil == Perfil.NORMAL) {
 			return new BigDecimal(0);
-		} else if(this.perfil.equals("ESPECIAL")) {
+		} else if (this.perfil == Perfil.ESPECIAL) {
 			return new BigDecimal(0.1);
-		} else if(this.perfil.equals("PREMIUM") ) {
+		} else if (this.perfil == Perfil.PREMIUM) {
 			return new BigDecimal(0.1);
 		}
 		return null;
@@ -54,12 +53,11 @@ public class Usuario {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	
+
 	public Long getCPF() {
 		return this.cpf;
 	}
 
-	
 	public Perfil getPerfil() {
 		return this.perfil;
 	}
@@ -71,12 +69,11 @@ public class Usuario {
 	public BigDecimal getDesconto() {
 		return this.desconto;
 	}
-	
+
 	public void setDesconto(BigDecimal desconto) {
 		this.desconto = desconto;
 	}
-	
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

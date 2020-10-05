@@ -157,11 +157,11 @@ public class RestApiController {
 		// quantidade de produtos no carrinho
 		int quantidadeDeProdutos = this.carrinho.getProdutos().size();
 
-		if (usuario.getPerfil().equals("ESPECIAL") && quantidadeDeProdutos > 10) {
+		if (usuario.getPerfil().equals(Perfil.ESPECIAL) && quantidadeDeProdutos > 10) {
 
 			BigDecimal desconto = compra.getValorTotal().multiply(usuario.getDesconto());
 			compra.setValorTotal(compra.getValorTotal().subtract(desconto));
-		} else if( usuario.getPerfil().equals("PREMIUM") && quantidadeDeProdutos > 5) {
+		} else if( usuario.getPerfil().equals(Perfil.PREMIUM) && quantidadeDeProdutos > 5) {
 			BigDecimal desconto = compra.getValorTotal().multiply(usuario.getDesconto());
 			compra.setValorTotal(compra.getValorTotal().subtract(desconto));
 		}
@@ -178,7 +178,6 @@ public class RestApiController {
 		this.carrinho.setQtdItens(0);
 		return new ResponseEntity<String>(saida, HttpStatus.CREATED);
 	}
-	
 
 	// Lista as compras
 
