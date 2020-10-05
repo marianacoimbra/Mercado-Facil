@@ -29,11 +29,11 @@ public class Usuario {
 	}
 
 	public BigDecimal setDesconto() {
-		if (this.perfil.equals("PREMIUM")) {
+		if (this.perfil.equals("NORMAL")) {
 			return new BigDecimal(0);
 		} else if(this.perfil.equals("ESPECIAL")) {
 			return new BigDecimal(0.1);
-		} else if(this.perfil.equals("NORMAL") ) {
+		} else if(this.perfil.equals("PREMIUM") ) {
 			return new BigDecimal(0.1);
 		}
 		return null;
